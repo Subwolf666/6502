@@ -188,310 +188,353 @@ uint8_t Peek(uint16_t address)
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-void _adc(uint8_t opcode, uint8_t pc_inc)
-{
-	uint16_t tmp;
-	uint16_t tmp_value;
-	uint16_t reg_a_read;
-
-	tmp_value = opcode;
-	reg_a_read = state->A;
-
-	if (state->sr.D == 1) // Decimal mode
-	{
-		tmp = (reg_a_read & 0xf) + (tmp_value & 0xf) + state->sr.C;
-		if (tmp > 0x9)
-			tmp += 0x6;
-		if (tmp <= 0x0f)
-			tmp = (tmp & 0xf) + (reg_a_read & 0xf0) + (tmp_value & 0xf0);
-		else
-			tmp = (tmp & 0xf) + (reg_a_read & 0xf0) + (tmp_value & 0xf0) + 0x10;
-		state->sr.Z = !((reg_a_read + tmp_value + state->sr.C) & 0xff);
-		StatusRegisterNegative(tmp);
-		state->sr.V = (((reg_a_read ^ tmp) & 0x80) && !((reg_a_read ^ tmp_value) & 0x80));
-		if ((tmp & 0x1f0) > 0x90)
-			tmp += 0x60;
-		state->sr.C = ((tmp & 0xff0) > 0xf0);
-	}
-	else  // Binary mode
-	{
-		tmp = tmp_value + reg_a_read + state->sr.C;
-		StatusRegisterZero(tmp);
-		StatusRegisterNegative(tmp);
-		state->sr.V = (!((reg_a_read ^ tmp_value) & 0x80) && ((reg_a_read ^ tmp) & 0x80));
-		StatusRegisterCarry(tmp);
-	}
-	state->A = (uint8_t) tmp;
-	state->PC = state->PC + pc_inc;
-}
+#define _adc(opcode, pc_inc)												\
+do {																		\
+		uint16_t tmp;														\
+		uint16_t tmp_value = opcode;										\
+		uint16_t reg_a_read = state->A;										\
+																			\
+		tmp_value = opcode;													\
+		reg_a_read = state->A;												\
+																			\
+		if (state->sr.D == 1)				 								\
+		{																	\
+			tmp = (reg_a_read & 0xf) + (tmp_value & 0xf) + state->sr.C;		\
+			if (tmp > 0x9)													\
+				tmp += 0x6;													\
+			if (tmp <= 0x0f)												\
+				tmp = (tmp & 0xf) + (reg_a_read & 0xf0) +					\
+					(tmp_value & 0xf0);										\
+			else															\
+				tmp = (tmp & 0xf) + (reg_a_read & 0xf0) +					\
+					(tmp_value & 0xf0) + 0x10;								\
+			state->sr.Z = !((reg_a_read + tmp_value + state->sr.C) & 0xff);	\
+			StatusRegisterNegative(tmp);									\
+			state->sr.V = (((reg_a_read ^ tmp) & 0x80) &&					\
+				!((reg_a_read ^ tmp_value) & 0x80));						\
+			if ((tmp & 0x1f0) > 0x90)										\
+				tmp += 0x60;												\
+			state->sr.C = ((tmp & 0xff0) > 0xf0);							\
+		}																	\
+		else																\
+		{																	\
+			tmp = tmp_value + reg_a_read + state->sr.C;						\
+			StatusRegisterZero(tmp);										\
+			StatusRegisterNegative(tmp);									\
+			state->sr.V = (!((reg_a_read ^ tmp_value) & 0x80) &&			\
+				((reg_a_read ^ tmp) & 0x80));								\
+			StatusRegisterCarry(tmp);										\
+		}																	\
+		state->A = (uint8_t)tmp;											\
+		state->PC = state->PC + pc_inc;										\
+	}																		\
+while (0)	
 /*****************************************************************************
  *** AND: And memory with accumulator                                      ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-//void _and(uint8_t opcode, uint8_t pc_inc)
-//{
-//	uint16_t answer = (uint16_t)(state->A & opcode);
-//	StatusRegisterNegative(answer);
-//	StatusRegisterZero(answer);
-//	state->A = (uint8_t)answer; // LSB
-//	state->PC = (uint16_t)state->PC + (uint16_t)pc_inc;
-//}
-#define _and(opcode, pc_inc)							\
-do {													\
-	uint16_t answer = (uint16_t)(state->A & opcode);	\
-	StatusRegisterNegative(answer);						\
-	StatusRegisterZero(answer);							\
-	state->A = (uint8_t)answer;							\
-	state->PC = (uint16_t)state->PC + (uint16_t)pc_inc;	\
-} while (0)														\
-
+#define _and(opcode, pc_inc)												\
+do {																		\
+		uint16_t answer = (uint16_t)(state->A & opcode);					\
+		StatusRegisterNegative(answer);										\
+		StatusRegisterZero(answer);											\
+		state->A = (uint8_t)answer;											\
+		state->PC = (uint16_t)state->PC + (uint16_t)pc_inc;					\
+	}																		\
+while (0)
 /*****************************************************************************
  *** ASL: Shift left one bit (memory or accumulator)                       ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
+ ***      dest = destination of the shift left							   ***
  *****************************************************************************/
-uint8_t _asl(uint8_t opcode, uint8_t pc_inc)
-{
-	uint16_t answer = ((uint16_t)(opcode << 1));
-	StatusRegisterNegative(answer);
-	StatusRegisterZero(answer);
-	StatusRegisterCarry(answer);
-	state->PC = state->PC + pc_inc;
-
-	return (uint8_t) (answer & 0xff);
-}
+#define _asl(opcode, pc_inc, destination)									\
+do {																		\
+		uint16_t answer = ((uint16_t)(opcode << 1));						\
+		StatusRegisterNegative(answer);										\
+		StatusRegisterZero(answer);											\
+		StatusRegisterCarry(answer);										\
+		destination = (uint8_t)(answer & 0xff);								\
+		state->PC = state->PC + pc_inc;										\
+	}																		\
+while (0)
 /*****************************************************************************
- *** CP: Compare memory and register_content                               ***
- ***     register_content = content the 6510 registers (A, X, Y)           ***
- ***     memory = memory content                                           ***
+ *** CP: Compare memory and accumulator                                    ***
+ ***     opcode = memory content                                           ***
  ***     inc_pc = Inc with no. of cycles                                   ***
+ ***     dest = destination in memory                                      ***
  *****************************************************************************/
-static void _cp(uint8_t memory, uint8_t register_content, uint8_t pc_inc)
-{
-	uint16_t answer = (uint16_t)(register_content - memory);
-	StatusRegisterNegative(answer);
-	StatusRegisterZero(answer);
-	state->sr.C = (memory <= register_content) ? 1 : 0; // Carry
-	state->PC = state->PC + pc_inc;
-}
+#define _cp(opcode, pc_inc, dest)											\
+do {																		\
+		uint16_t answer = (uint16_t)(dest - opcode);						\
+		StatusRegisterNegative(answer);										\
+		StatusRegisterZero(answer);											\
+		state->sr.C = ((opcode <= dest) ? 1 : 0);							\
+		state->PC = state->PC + pc_inc;										\
+}																			\
+while (0)
 /*****************************************************************************
  *** CMP: Compare memory and accumulator                                   ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-#define _cmp(opcode, pc_inc)	(_cp(opcode, state->A, pc_inc))
+#define _cmp(opcode, pc_inc)												\
+do {																		\
+		_cp(opcode, pc_inc, state->A);										\
+	}																		\
+while (0)
 /*****************************************************************************
- *** CPX: Compare memory and ndex X                                        ***
+ *** CPX: Compare memory and index X                                       ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-#define _cpx(opcode, pc_inc)	(_cp(opcode, state->X, pc_inc))
+#define _cpx(opcode, pc_inc)												\
+do {																		\
+		_cp(opcode, pc_inc, state->X);										\
+	}																		\
+while (0)
 /*****************************************************************************
  *** CPY: Compare memory and index Y                                       ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-#define _cpy(opcode, pc_inc)	(_cp(opcode, state->Y, pc_inc))
+#define _cpy(opcode, pc_inc)												\
+do {																		\
+		_cp(opcode, pc_inc, state->Y);										\
+	}																		\
+while (0)
 /*****************************************************************************
  *** DEC: Decrement memory by one                                          ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
+ ***      dest = destination of the decrement							   ***
  *****************************************************************************/
-uint8_t _dec(uint8_t opcode, uint8_t pc_inc)
-{
-	uint8_t answer = (uint8_t)(opcode - 1);
-	StatusRegisterNegative(answer);
-	StatusRegisterZero(answer);
-	state->PC = state->PC + pc_inc;
-
-	return (uint8_t) (answer & 0xff); // LSB
-}
+#define _dec(opcode, pc_inc, dest)											\
+do {																		\
+		uint8_t answer = (uint8_t)(opcode - 1);								\
+		StatusRegisterNegative(answer);										\
+		StatusRegisterZero(answer);											\
+		dest = (uint8_t)(answer & 0xff);									\
+		state->PC = state->PC + pc_inc;										\
+	}																		\
+while (0)
 /*****************************************************************************
  *** DEX: Decrement index X by one                                         ***
+ ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-#define _dex()	(state->X = _dec(state->X, 1))
+#define _dex()																\
+do {																		\
+		_dec(state->X, 1, state->X);										\
+	}																		\
+while (0)
 /*****************************************************************************
  *** DEY: Decrement index Y by one                                         ***
+ ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-#define _dey()	(state->Y = _dec(state->Y, 1))
+#define _dey()																\
+do {																		\
+		_dec(state->Y, 1, state->Y);										\
+	}																		\
+while (0)
 /*****************************************************************************
  *** EOR: 'Exclusive OR' memory with accumulator                           ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-void _eor(uint8_t opcode, uint8_t pc_inc)
-{
-	uint8_t answer = (uint8_t)(state->A ^ opcode);
-	StatusRegisterNegative(answer);
-	StatusRegisterZero(answer);
-	state->A = (uint8_t)(answer & 0xff); // LSB
-	state->PC = state->PC + pc_inc;
-}
+#define _eor(opcode, pc_inc)												\
+do {																		\
+		uint8_t answer = (uint8_t)(state->A ^ opcode);						\
+		StatusRegisterNegative(answer);										\
+		StatusRegisterZero(answer);											\
+		state->A = (uint8_t)(answer & 0xff);								\
+		state->PC = state->PC + pc_inc;										\
+	}																		\
+while (0)
 /*****************************************************************************
  *** INC: Increment memory by one                                          ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-uint8_t _inc(uint8_t opcode, uint8_t pc_inc)
-{
-	uint8_t answer = (uint8_t)(opcode + 1);
-	StatusRegisterNegative(answer);
-	StatusRegisterZero(answer);
-	state->PC = state->PC + pc_inc;
-
-	return (uint8_t)(answer & 0xff); // LSB
-}
+#define _inc(opcode, pc_inc, dest)											\
+do {																		\
+		uint8_t answer = (uint8_t)(opcode + 1);								\
+		StatusRegisterNegative(answer);										\
+		StatusRegisterZero(answer);											\
+		dest = (uint8_t)(answer & 0xff);									\
+		state->PC = state->PC + pc_inc;										\
+}																			\
+while (0)
 /*****************************************************************************
- *** INX: Increment index X by one                                         ***
- ***      inc_pc = Inc with no. of cycles                                  ***
+ *** INX: Increment memory by one                                          ***
  *****************************************************************************/
-#define _inx()	(state->X = _inc(state->X, 1))
+#define _inx()																\
+do {																		\
+		_inc(state->X, 1, state->X);										\
+	}																		\
+while (0)
 /*****************************************************************************
- *** INY: Increment index Y by one                                         ***
- ***      inc_pc = Inc with no. of cycles                                  ***
+ *** INY: Increment memory by one                                          ***
  *****************************************************************************/
-#define _iny()	(state->Y = _inc(state->Y, 1))
-/*****************************************************************************
- *** JMP: JMP to new location                                              ***
- *****************************************************************************/
-#define _jmp(address)	(state->PC = address)
-/*****************************************************************************
+#define _iny()																\
+do {																		\
+		_inc(state->Y, 1, state->Y);										\
+	}																		\
+while (0)
+ /*****************************************************************************
  *** LD: Load register_content with memory                                 ***
  ***     register_content = content the 6510 registers (A, X, Y)           ***
  ***     memory = memory content                                           ***
  ***     inc_pc = Inc with no. of cycles                                   ***
  *****************************************************************************/
-static uint8_t _ld(uint8_t opcode, uint8_t pc_inc)
-{
-	uint16_t answer = (uint16_t) opcode;
-	StatusRegisterNegative(answer);
-	StatusRegisterZero(answer);
-	state->PC = state->PC + pc_inc;
-
-	return (uint8_t)(answer & 0xff);
-}
+#define _ld(opcode, pc_inc, dest)											\
+do {																		\
+		uint16_t answer = (uint16_t) opcode;								\
+		StatusRegisterNegative(answer);										\
+		StatusRegisterZero(answer);											\
+		dest = (uint8_t)(answer & 0xff);									\
+		state->PC = state->PC + pc_inc;										\
+	}																		\
+while (0)
 /*****************************************************************************
  *** LDA: Load accumulator with memory                                     ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-#define _lda(opcode, pc_inc)	(state->A = _ld(opcode, pc_inc))
+#define _lda(opcode, pc_inc)												\
+do {																		\
+	_ld(opcode, pc_inc, state->A);											\
+	}																		\
+while (0)
 /*****************************************************************************
  *** LDX: Load index X with memory                                         ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-#define _ldx(opcode, pc_inc)	(state->X = _ld(opcode, pc_inc))
+#define _ldx(opcode, pc_inc)												\
+do {																		\
+	_ld(opcode, pc_inc, state->X);											\
+	}																		\
+while (0)
 /*****************************************************************************
-*** LDY: Load index Y with memory                                         ***
-***      opcode = memory content                                          ***
-***      inc_pc = Inc with no. of cycles                                  ***
-*****************************************************************************/
-#define _ldy(opcode, pc_inc)	(state->Y = _ld(opcode, pc_inc))
+ *** LDY: Load index Y with memory                                         ***
+ ***      opcode = memory content                                          ***
+ ***      inc_pc = Inc with no. of cycles                                  ***
+ *****************************************************************************/
+#define _ldy(opcode, pc_inc)												\
+do {																		\
+	_ld(opcode, pc_inc, state->Y);											\
+	}																		\
+while (0)
 /*****************************************************************************
  *** LSR: Logical Shift Right (memory or accumulator)                      ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-uint8_t _lsr(uint8_t opcode, uint8_t pc_inc)
-{
-	uint8_t b0_before = opcode;
-	uint16_t answer = ((uint16_t)(opcode >> 1));
-
-	state->sr.N = 0; // Always Negative
-	StatusRegisterZero(answer);
-	state->sr.C = ((b0_before & 0x01) == 1); // Carry is b0 of the opcode
-	state->PC = state->PC + pc_inc;
-
-	return (uint8_t)(answer & 0xff);
-}
+#define _lsr(opcode, pc_inc, dest)											\
+do {																		\
+		uint8_t b0_before = opcode;											\
+		uint16_t answer = ((uint16_t)(opcode >> 1));						\
+		state->sr.N = 0;													\
+		StatusRegisterZero(answer);											\
+		state->sr.C = ((b0_before & 0x01) == 1);							\
+		dest = (uint8_t)(answer & 0xff);									\
+		state->PC = state->PC + pc_inc;										\
+	}																		\
+while (0)
 /*****************************************************************************
  *** ORA: OR memory with accumulator                                       ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-void _ora(uint8_t opcode, uint8_t pc_inc)
-{
-	uint16_t answer = (uint16_t)(state->A | opcode);
-	StatusRegisterNegative(answer);
-	StatusRegisterZero(answer);
-	state->A = (uint8_t)answer; // LSB
-	state->PC = (uint16_t)state->PC + (uint16_t)pc_inc;
-}
+#define _ora(opcode, pc_inc)												\
+do {																		\
+		uint16_t answer = (uint16_t)(state->A | opcode);					\
+		StatusRegisterNegative(answer);										\
+		StatusRegisterZero(answer);											\
+		state->A = (uint8_t)answer;											\
+		state->PC = state->PC + pc_inc;										\
+	}																		\
+while (0)
 /*****************************************************************************
  *** ROL: Rotate one bit left (memory or accumulator)                      ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-uint8_t _rol(uint8_t opcode, uint8_t pc_inc)
-{
-	uint16_t answer = (uint16_t)((opcode << 1) | state->sr.C);
-	StatusRegisterNegative(answer);
-	StatusRegisterZero(answer);
-	StatusRegisterCarry(answer);
-	state->PC = state->PC + pc_inc;
-
-	return (uint8_t)(answer & 0xff);
-}
+#define _rol(opcode, pc_inc, dest)											\
+do {																		\
+		uint16_t answer = (uint16_t)((opcode << 1) | state->sr.C);			\
+		StatusRegisterNegative(answer);										\
+		StatusRegisterZero(answer);											\
+		StatusRegisterCarry(answer);										\
+		dest = (uint8_t)(answer & 0xff);									\
+		state->PC = state->PC + pc_inc;										\
+	}																		\
+while (0)
 /*****************************************************************************
-*** ROR: Rotate one bit right (memory or accumulator)                      ***
-***      opcode = memory content                                          ***
-***      inc_pc = Inc with no. of cycles                                  ***
-*****************************************************************************/
-uint8_t _ror(uint8_t opcode, uint8_t pc_inc)
-{
-	uint16_t answer = (uint16_t)((opcode >> 1) | (state->sr.C << 7));
-	StatusRegisterNegative(answer);
-	StatusRegisterZero(answer);
-	state->sr.C = ((opcode & 0x01) == 1) ? 1 : 0; // Carry
-	state->PC = state->PC + pc_inc;
-
-	return (uint8_t)(answer & 0xff);
-}
+ *** ROR: Rotate one bit right (memory or accumulator)                     ***
+ ***      opcode = memory content                                          ***
+ ***      inc_pc = Inc with no. of cycles                                  ***
+ *****************************************************************************/
+#define _ror(opcode, pc_inc, dest)											\
+do {																		\
+		uint16_t answer = (uint16_t)((opcode >> 1) | (state->sr.C << 7));	\
+		StatusRegisterNegative(answer);										\
+		StatusRegisterZero(answer);											\
+		state->sr.C = ((opcode & 0x01) == 1) ? 1 : 0;						\
+		dest = (uint8_t)(answer & 0xff);									\
+		state->PC = state->PC + pc_inc;										\
+	}																		\
+while (0)
 /*****************************************************************************
  *** SBC: Subtract memory from accumulator with carry                      ***
  ***      opcode = memory content                                          ***
  ***      inc_pc = Inc with no. of cycles                                  ***
  *****************************************************************************/
-void _sbc(uint8_t opcode, uint8_t pc_inc)
-{
-	uint16_t src;
-	uint16_t tmp;
-	uint16_t reg_a_read;
-
-	src = (int16_t)opcode;
-	reg_a_read = (uint16_t)state->A;
-	tmp = reg_a_read - src - ((state->sr.C & 0x1) ? 0 : 1);
-
-	if (state->sr.D == 1) // Decimal mode
-	{
-		uint16_t tmp_a;
-		tmp_a = (reg_a_read & 0xf) - (src & 0xf) - ((state->sr.C & 0x1) ? 0 : 1);
-		if (tmp_a & 0x10)
-			tmp_a = ((tmp_a - 6) & 0xf) | ((reg_a_read & 0xf0) - (src & 0xf0) - 0x10);
-		else
-			tmp_a = (tmp_a & 0xf) | ((reg_a_read & 0xf0) - (src & 0xf0));
-		if (tmp_a & 0x100)
-			tmp_a -= 0x60;
-		state->sr.C = (tmp < 0x100);
-		StatusRegisterZero(tmp);
-		StatusRegisterNegative(tmp);
-		state->sr.V = (((reg_a_read ^ tmp) & 0x80) && ((reg_a_read ^ src) & 0x80));
-		state->A = (uint8_t)(tmp_a & 0xff);
-	}
-	else
-	{
-		state->sr.C = (tmp < 0x100);
-		StatusRegisterZero(tmp);
-		StatusRegisterNegative(tmp);
-		state->sr.V = (((reg_a_read ^ tmp) & 0x80) && ((reg_a_read ^ src) & 0x80));
-		state->A = (uint8_t)(tmp & 0xff);
-	}
-	state->PC = state->PC + pc_inc;
-}
+#define _sbc(opcode,pc_inc)													\
+do {																		\
+		uint16_t src;														\
+		uint16_t tmp;														\
+		uint16_t reg_a_read;												\
+																			\
+		src = (int16_t)opcode;												\
+		reg_a_read = (uint16_t)state->A;									\
+		tmp = reg_a_read - src - ((state->sr.C & 0x1) ? 0 : 1);				\
+																			\
+		if (state->sr.D == 1)												\
+		{																	\
+			uint16_t tmp_a;													\
+			tmp_a = (reg_a_read & 0xf) - (src & 0xf) -						\
+				((state->sr.C & 0x1) ? 0 : 1);								\
+			if (tmp_a & 0x10)												\
+				tmp_a = ((tmp_a - 6) & 0xf) | ((reg_a_read & 0xf0) -		\
+					(src & 0xf0) - 0x10);									\
+			else															\
+				tmp_a = (tmp_a & 0xf) | ((reg_a_read & 0xf0) -				\
+					(src & 0xf0));											\
+			if (tmp_a & 0x100)												\
+				tmp_a -= 0x60;												\
+			state->sr.C = (tmp < 0x100);									\
+			StatusRegisterZero(tmp);										\
+			StatusRegisterNegative(tmp);									\
+			state->sr.V = (((reg_a_read ^ tmp) & 0x80) &&					\
+				((reg_a_read ^ src) & 0x80));								\
+			state->A = (uint8_t)(tmp_a & 0xff);								\
+		}																	\
+		else																\
+		{																	\
+			state->sr.C = (tmp < 0x100);									\
+			StatusRegisterZero(tmp);										\
+			StatusRegisterNegative(tmp);									\
+			state->sr.V = (((reg_a_read ^ tmp) & 0x80) &&					\
+				((reg_a_read ^ src) & 0x80));								\
+			state->A = (uint8_t)(tmp & 0xff);								\
+		}																	\
+		state->PC = state->PC + pc_inc;										\
+	}																		\
+while (0)
 /*****************************************************************************
  *** Disassemble the assembly code  									   ***
  *** pc is the current offset into the code								   ***
@@ -843,7 +886,8 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x06: // ASL $FF (Zeropage) C <- 76543210 <- 0
 			{
-				tZEROPAGE(opcode1) = _asl(ZEROPAGE(opcode1), 2);
+				//tZEROPAGE(opcode1) = _asl(ZEROPAGE(opcode1), 2);
+				_asl(ZEROPAGE(opcode1), 2, tZEROPAGE(opcode1));
 			}
 			break;
 		case 0x07: UnimplementedInstruction(); break;
@@ -862,7 +906,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x0A: // ASL A (Accumulator) C <- 76543210 <- 0
 			{
-				state->A = _asl(state->A, 1); // read/modify/write instruction
+				_asl(state->A, 1, state->A); // read/modify/write instruction
 			}
 			break;
 		case 0x0B: UnimplementedInstruction(); break;
@@ -874,7 +918,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x0E: // ASL $FFFF (Absolute) C <- 76543210 <- 0
 			{
-				tABSOLUTE(opcode1, opcode2) = _asl(ABSOLUTE(opcode1, opcode2), 3);
+				_asl(ABSOLUTE(opcode1, opcode2), 3, tABSOLUTE(opcode1, opcode2));
 			}
 			break;
 		case 0x0F: UnimplementedInstruction(); break;
@@ -899,7 +943,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x16: // ASL $FF,X (Zeropage,X) C <- 76543210 <- 0
 			{
-				tZEROPAGEX(opcode1) = _asl(ZEROPAGEX(opcode1), 2);
+				_asl(ZEROPAGEX(opcode1), 2, tZEROPAGEX(opcode1));
 			}
 			break;
 		case 0x17: UnimplementedInstruction(); break;
@@ -924,7 +968,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x1E: // ASL $FFFF,X (Absolute,X) C <- 76543210 <- 0
 			{
-				tABSOLUTEX(opcode1, opcode2) = _asl(ABSOLUTEX(opcode1, opcode2), 3);
+				_asl(ABSOLUTEX(opcode1, opcode2), 3, tABSOLUTEX(opcode1, opcode2));
 			}
 			break;
 		case 0x1F: UnimplementedInstruction(); break;
@@ -963,7 +1007,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x26: // ROL $FF (ZeroPage) <- 76543210 <- C <-
 			{
-				tZEROPAGE(opcode1) = _rol(ZEROPAGE(opcode1), 2);
+				_rol(ZEROPAGE(opcode1), 2, tZEROPAGE(opcode1));
 			}
 			break;
 		case 0x27: UnimplementedInstruction(); break;
@@ -990,7 +1034,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x2A: // ROL A (Accumulator) <- 76543210 <- C <-
 			{
-				state->A = _rol(state->A, 1);
+				_rol(state->A, 1, state->A);
 			}
 			break;
 		case 0x2B: UnimplementedInstruction(); break;
@@ -1012,7 +1056,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x2E: // ROL $FFFF (Absolute) <- 76543210 <- C <-
 			{
-				tABSOLUTE(opcode1, opcode2) = _rol(ABSOLUTE(opcode1, opcode2), 3);
+				_rol(ABSOLUTE(opcode1, opcode2), 3, tABSOLUTE(opcode1, opcode2));
 			}
 			break;
 		case 0x2F: UnimplementedInstruction(); break;
@@ -1037,7 +1081,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x36: // ROL $FF,X (ZeroPage,X) <- 76543210 <- C <-
 			{
-				tZEROPAGEX(opcode1) = _rol(tZEROPAGEX(opcode1), 2);
+				_rol(tZEROPAGEX(opcode1), 2, tZEROPAGEX(opcode1));
 			}
 			break;
 		case 0x37: UnimplementedInstruction(); break;
@@ -1062,7 +1106,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x3E: // ROL $FFFF,X (Absolute,X) <- 76543210 <- C <-
 			{
-				tABSOLUTEX(opcode1, opcode2) = _rol(ABSOLUTEX(opcode1, opcode2), 3);
+				_rol(ABSOLUTEX(opcode1, opcode2), 3, tABSOLUTEX(opcode1, opcode2));
 			}
 			break;
 		case 0x3F: UnimplementedInstruction(); break;
@@ -1100,7 +1144,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x46: // LSR $FF (Zeropage) 0 -> 76543210 -> C
 			{
-				tZEROPAGE(opcode1) = _lsr(ZEROPAGE(opcode1), 2);
+				_lsr(ZEROPAGE(opcode1), 2, tZEROPAGE(opcode1));
 			}
 			break;
 		case 0x47: UnimplementedInstruction(); break;
@@ -1118,13 +1162,13 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x4A: // LSR A (Accumulator) 0 -> 76543210 -> C
 			{
-				state->A = _lsr(state->A, 1);
+				_lsr(state->A, 1, state->A);
 			}
 			break;
 		case 0x4B: UnimplementedInstruction(); break;
 		case 0x4C: // JMP $XXXX (Absolute) (PC + 1) -> PCL, (PC + 2) -> PCH
 			{
-				_jmp((uint16_t)(opcode1 | (opcode2 << 8)));
+				state->PC = (uint16_t)(opcode1 | (opcode2 << 8));
 			}
 			break;
 		case 0x4D: // EOR $FFFF (Absolute)  A EOR M -> A
@@ -1134,7 +1178,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x4E: // LSR $FFFF (Absolute) 0 -> 76543210 -> C
 			{
-				tABSOLUTE(opcode1, opcode2) = _lsr(ABSOLUTE(opcode1, opcode2), 3);
+				_lsr(ABSOLUTE(opcode1, opcode2), 3, tABSOLUTE(opcode1, opcode2));
 			}
 			break;
 		case 0x4F: UnimplementedInstruction(); break;
@@ -1159,7 +1203,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x56: // LSR $FF,X (Zeropage,X) 0 -> 76543210 -> C
 			{
-				tZEROPAGEX(opcode1) = _lsr(ZEROPAGEX(opcode1), 2);
+				_lsr(ZEROPAGEX(opcode1), 2, tZEROPAGEX(opcode1));
 			}
 			break;
 		case 0x57: UnimplementedInstruction(); break;
@@ -1184,7 +1228,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x5E: // LSR $FFFF,X (Absolute,X) 0 -> 76543210 -> C
 			{
-				tABSOLUTEX(opcode1, opcode2) = _lsr(ABSOLUTEX(opcode1, opcode2), 3);
+				_lsr(ABSOLUTEX(opcode1, opcode2), 3, tABSOLUTEX(opcode1, opcode2));
 			}
 			break;
 		case 0x5F: UnimplementedInstruction(); break;
@@ -1214,7 +1258,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x66: // ROR $FF (ZeroPage) b0 -> C -> 76543210 -> C
 			{
-				tZEROPAGE(opcode1) = _ror(ZEROPAGE(opcode1), 2);
+				_ror(ZEROPAGE(opcode1), 2, tZEROPAGE(opcode1));
 			}
 			break;
 		case 0x67: UnimplementedInstruction(); break;
@@ -1234,14 +1278,14 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x6A: // ROR A (Accumulator) b0 -> C-> 76543210 -> C
 			{
-				state->A = _ror(state->A, 1);
+				_ror(state->A, 1, state->A);
 			}
 			break;
 		case 0x6B: UnimplementedInstruction(); break;
 		case 0x6C: // JMP ($XXXX) (Abs.Indirect) (PC + 1) -> PCL, (PC + 2) -> PCH
 			{
 				// Load ADL from address $XXXX address and load ADH from address $XXXX + 1
-				_jmp(Peek((uint16_t)(opcode1 | (opcode2 << 8))) | (Peek((uint16_t)((opcode1 | (opcode2 << 8)) + 1)) << 8));
+				state->PC = Peek((uint16_t)(opcode1 | (opcode2 << 8))) | (Peek((uint16_t)((opcode1 | (opcode2 << 8)) + 1)) << 8);
 			}
 			break;
 		case 0x6D: // ADC $FFFF (Absolute) A + M + C -> A, C
@@ -1251,7 +1295,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x6E: // ROR $FFFF (Absolute) b0 -> C -> 76543210 -> C
 			{
-				tABSOLUTE(opcode1, opcode2) = _ror(ABSOLUTE(opcode1, opcode2), 3);
+				_ror(ABSOLUTE(opcode1, opcode2), 3, tABSOLUTE(opcode1, opcode2));
 			}
 			break;
 		case 0x6F: UnimplementedInstruction(); break;
@@ -1276,7 +1320,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x76: // ROR $FF,X (ZeroPage,X) b0 -> C -> 76543210 -> C
 			{
-				tZEROPAGEX(opcode1) = _ror(ZEROPAGEX(opcode1), 2);
+				_ror(ZEROPAGEX(opcode1), 2, tZEROPAGEX(opcode1));
 			}
 			break;
 		case 0x77: UnimplementedInstruction(); break;
@@ -1301,7 +1345,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0x7E: // ROR $FFFF,X (Absolute,X) b0 -> C -> 76543210 -> C
 			{
-				tABSOLUTEX(opcode1, opcode2) = _ror(ABSOLUTEX(opcode1, opcode2), 3);
+				_ror(ABSOLUTEX(opcode1, opcode2), 3, tABSOLUTEX(opcode1, opcode2));
 			}
 			break;
 		case 0x7F: UnimplementedInstruction(); break;
@@ -1605,7 +1649,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0xC6: // DEC (ZeroPage) M - 1 -> M
 			{
-				tZEROPAGE(opcode1) = _dec(ZEROPAGE(opcode1), 2);
+				_dec(ZEROPAGE(opcode1), 2, tZEROPAGE(opcode1));
 			}
 			break;
 		case 0xC7: UnimplementedInstruction(); break;
@@ -1637,7 +1681,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0xCE: // DEC (Absolute) M - 1 -> M
 			{
-				tABSOLUTE(opcode1, opcode2) = _dec(ABSOLUTE(opcode1, opcode2), 3);
+				_dec(ABSOLUTE(opcode1, opcode2), 3, tABSOLUTE(opcode1, opcode2));
 			}
 			break;
 		case 0xCF: UnimplementedInstruction(); break;
@@ -1665,7 +1709,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0xD6: // DEC (ZeroPage,X) M - 1 -> M
 			{
-				tZEROPAGEX(opcode1) = _dec(ZEROPAGEX(opcode1), 2);
+				_dec(ZEROPAGEX(opcode1), 2, tZEROPAGEX(opcode1));
 			}
 			break;
 		case 0xD7: UnimplementedInstruction(); break;
@@ -1690,7 +1734,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0xDE: // DEC (Absolute,X) M - 1 -> M
 			{
-				tABSOLUTEX(opcode1, opcode2) = _dec(ABSOLUTEX(opcode1, opcode2), 3);
+				_dec(ABSOLUTEX(opcode1, opcode2), 3, tABSOLUTEX(opcode1, opcode2));
 			}
 			break;
 		case 0xDF: UnimplementedInstruction(); break;
@@ -1719,7 +1763,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0xE6: // INC (ZeroPage) M + 1 -> M
 			{
-				tZEROPAGE(opcode1) = _inc(ZEROPAGE(opcode1), 2);
+				_inc(ZEROPAGE(opcode1), 2, tZEROPAGE(opcode1));
 			}
 			break;
 		case 0xE7: UnimplementedInstruction(); break;
@@ -1751,7 +1795,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0xEE: // INC (Absolute) M + 1 -> M
 			{
-				tABSOLUTE(opcode1, opcode2) = _inc(ABSOLUTE(opcode1, opcode2), 3);
+				_inc(ABSOLUTE(opcode1, opcode2), 3, tABSOLUTE(opcode1, opcode2));
 			}
 			break;
 		case 0xEF: UnimplementedInstruction(); break;
@@ -1779,7 +1823,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0xF6: // INC (ZeroPage,X) M + 1 -> M
 			{
-				tZEROPAGEX(opcode1) = _inc(ZEROPAGEX(opcode1), 2);
+				_inc(ZEROPAGEX(opcode1), 2, tZEROPAGEX(opcode1));
 			}
 			break;
 		case 0xF7: UnimplementedInstruction(); break;
@@ -1804,7 +1848,7 @@ int Emulate6510Op(State6510* state)
 			break;
 		case 0xFE: // INC (Absolute,X) M + 1 -> M
 			{
-				tABSOLUTEX(opcode1, opcode2) = _inc(ABSOLUTEX(opcode1, opcode2), 3);
+				_inc(ABSOLUTEX(opcode1, opcode2), 3, tABSOLUTEX(opcode1, opcode2));
 			}
 			break;
 		case 0xFF: UnimplementedInstruction(); break;
@@ -1955,6 +1999,16 @@ void Init6510(void)
 	state->memory[0xFFFD] = 0xfc;
 	state->memory[0xFFFE] = 0x48; // 0xFF48
 	state->memory[0xFFFF] = 0xff;
+
+	//
+	// Test routines to test the emulator
+	//
+	//ReadFileIntoMemoryAt(state, "./test_files/decimal_test/decimal_test.prg", 0x0801); // test software
+	// in state->memory[0x09be] = the variable that holds the outcome: 0 = succes, 1 = error
+	ReadFileIntoMemoryAt(state, "./test_files/overflow_test/overflow_test.prg", 0x0801); // test software
+	// in state->memory[0x0896] = the variable that holds the outcome: 0 = succes, 1 = error
+
+	//ReadFileIntoMemoryAt(state, "./test_files/asl_Compiled.prg", 0x0801); // test software
 }
 
 uint8_t main (int argc, char**argv)
@@ -1969,21 +2023,9 @@ uint8_t main (int argc, char**argv)
 	if (C64_LoadROM()) return 1;
 	Init6510();
 
-	//ReadFileIntoMemoryAt(state, "Kernal1.rom", 0xE000); // Kernal - Copy
-//	ReadFileIntoMemoryAt(state, "./test_files/decimal_test/decimal_test.prg", 0x0801); // test software
-	ReadFileIntoMemoryAt(state, "./test_files/overflow_test/overflow_test.prg", 0x0801); // test software
 
 	while (done == 0)
 	{
-		uint8_t kut;
-		if (state->PC == 0x084c) // label .done 
-			kut = 0;
-//			printf(".done\n");
-//		if (state->PC == 0x0869) // label .add
-//		if (state->PC == 0x0859) // inc 0x09c1
-//				printf("einde");
-//		if (state->PC == 0x085b) // inc 0x09c1
-//			printf("einde");
 		done = Emulate6510Op(state);
 		//if (clock() - lastinterrupt > 1.0/60.0) // 1/60 second has elapsed
 		//{
