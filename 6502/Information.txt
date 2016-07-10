@@ -1,0 +1,28 @@
+Wiki
+http://en.wikipedia.org/wiki/Commodore_64
+
+To protect and to serve
+http://www.c64.com/
+
+A detailed, step by step guide to writing an emulator. 8080
+http://emulator101.com/
+Sample code
+http://www.emulator101.com.s3-website-us-east-1.amazonaws.com/files/8080emu-first50.c
+
+Virtual 6502
+http://www.masswerk.at/6502/
+
+http://fms.komkon.org/EMUL8/HOWTO.html
+http://dustlayer.com/tutorials/ with MAC tools.
+http://dustlayer.com/index-cpu-6510/
+
+All about your 64-Online Help
+http://www.unusedino.de/ec64/technical/aay/c64/index.htm
+
+Commodore 64 manuals
+http://www.commodore.ca/commodore-manuals/
+
+
+
+
+http://www.unusedino.de/ec64/technical/aay/c64/bmain.htm

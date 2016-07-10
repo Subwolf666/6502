@@ -1,0 +1,80 @@
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (68) failed with ffffffea 
+
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (1764) failed with ffffffea 
+
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (52) failed with ffffffea 
+
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (1764) failed with ffffffea 
+
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (52) failed with ffffffea 
+
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (1424) failed with ffffffea 
+
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (52) failed with ffffffea 
+
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (1764) failed with ffffffea 
+
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (52) failed with ffffffea 
+
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (1424) failed with ffffffea 
+
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (52) failed with ffffffea 
+
+OpenGL Warning: SHCRGL_GUEST_FN_WRITE_READ (1764) failed with ffffffea 
+
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr

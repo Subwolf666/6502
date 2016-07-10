@@ -1,0 +1,55 @@
+Immediate LDA #$FF
+A9 05 
+Load the content $FF into A
+A <= 05
+
+Zeropage  LDA $FF
+A5 05
+Load the content of zeropage address $00FF into A
+A <= $00FF
+
+Zeropage,X LDA $FF,X
+X = 0X02
+B5 05
+Load the content of zeropage address + offsett ($00FF + X) into A
+A <= $00FF + X
+
+Absolute   LDA $FFFF
+AD 05 00
+Load the content of address $FFFF into A
+A <= $FFFF
+
+Absolute, X  LDA $FFFF,X
+X = 0x02
+BD 05 00
+Load the content of address + offset $FFFF + X into A
+A <= $FFFF + X
+
+Absolute, Y  LDA $FFFF,Y
+Y = 0X02
+B9 05 00
+Load the content of address + offset $FFFF + Y into A
+A <= $FFFF + Y
+
+(Indirect,X)  LDA ($FF,X)
+X = 0X02;
+A1 05
+Load the content of address at address + offset ($00FF + X) into A
+The data from address in address($00FF + X)
+0000 A1 05
+0005 20
+0006 00
+0007 32
+0008 00
+0032 AA
+Address 0x0005 + X = 0x0007 | (0x0008 << 8)=> 0x0032 => content of 0x0032 = AA
+
+(Indirect),Y   LDA ($FF),Y
+Y = 0x02
+B1 05
+Load the address of ((address $00FF and $00FF + 1) + offset) into A
+0000 B1 05
+0005 20
+0006 00
+0022 D4
+Address (0x0005 | (0x0006 << 8)) + Y into A

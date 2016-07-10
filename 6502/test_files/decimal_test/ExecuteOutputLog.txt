@@ -1,0 +1,8 @@
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
+OpenGL Warning: crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr
